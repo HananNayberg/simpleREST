@@ -7,6 +7,11 @@ const uuidv4 = require('uuid/v4')
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true}));
 
+//creating custom middleware for the app.post 
+app.use((req,res,next) => {
+    req.me = users[1];
+    next();
+})
 let users = {
     1:{id: '1', username: 'Raf Morales'},
     2:{id: '2', username: 'Hanan Nayberg'},
@@ -41,10 +46,11 @@ app.post('/messages', (req,res) => {
     const message = {
         id,
         text: req.body.text,
-        userId: req.method.id,
+        userId: req.me.id,
     };
     messages[id] = message;
     return res.send(message);
+    
 });
 
 app.post("/users", (req,res,next) => {
@@ -56,11 +62,25 @@ app.put("/users/:userId", (req,res,next) => {
     );
 });
 
-app.delete("/users/userId", (req,res,next) => {
+app.delete("/users/:userId", (req,res,next) => {
     return res.send(`DELETE HTTP method on user/${req.params.userId} resource`,
     );
 });
 
+app.delete('/messages/:messageId', (req,res) => {
+    return res.send(messages[req.params.messageId]);
+});
+
+/* 
+{
+    const {[req.params.messgaeId]: message, ...otherMessages
+} = messages;
+
+messages = otherMessages;
+
+return res.send(message);
+});
+*/
 app.listen(3000, () => {
     console.log("Server running on port 3000");
 });
